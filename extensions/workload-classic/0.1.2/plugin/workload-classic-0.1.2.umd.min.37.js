@@ -1,2 +1,0 @@
-(("undefined"!==typeof self?self:this)["webpackChunkworkload_classic_0_1_2"]=("undefined"!==typeof self?self:this)["webpackChunkworkload_classic_0_1_2"]||[]).push([[37],{49037:function(l){const s=[{workloadClassic:{nav:{label:"All Workloads"}}}];l.exports=s.length<=1?s[0]:s}}]);
-//# sourceMappingURL=workload-classic-0.1.2.umd.min.37.js.map
