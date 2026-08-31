@@ -100,28 +100,49 @@ export default {
   },
 
   watch: {
+    filteredRows() {
+      this.kickDelayedColumns();
+    },
+
+    '$fetchState.pending'(pending) {
+      if (!pending) {
+        this.kickDelayedColumns();
+      }
+    },
+  },
+
+  methods: {
     /**
-     * Kick the delayed columns (Restarts, Health) once rows arrive.
+     * Start the delayed columns (Restarts, Health).
      *
      * SortableTable only starts a `delayLoading` column when it sees the
-     * `forceUpdateLiveAndDelayed` prop CHANGE (watcherUpdateLiveAndDelayed ->
-     * updateDelayedColumns), or when the user scrolls the table.
-     *
-     * The shell's own mixins assign that timestamp from exactly two watchers:
-     * a namespace-filter change (resource-fetch-namespaced.js) and a pagination
-     * change (resource-fetch-api-pagination.js). Native list pages get it for
-     * free because server-side pagination settles during load. This page
+     * `forceUpdateLiveAndDelayed` prop change (watcherUpdateLiveAndDelayed ->
+     * updateDelayedColumns), or when the table is scrolled. The shell assigns
+     * that timestamp from exactly two watchers: a namespace-filter change
+     * (resource-fetch-namespaced) and a pagination change
+     * (resource-fetch-api-pagination). Native list pages get it for free
+     * because server-side pagination settles during load. This page
      * deliberately does not paginate, and on a first load the namespace filter
-     * does not change either -- so neither watcher fires, the value stays at its
-     * initial 0, and both delayed columns spin forever.
+     * does not change either, so neither fires and both columns spin forever.
      *
-     * Re-running is safe: SortableTable tags each column with `__delayedLoading`
-     * and skips the ones it has already started.
+     * Timing matters as much as the nudge itself. SortableTable renders no rows
+     * at all while `loading` is true (`v-if="isLoading && !loadingDelay"`), and
+     * updateDelayedColumns bails out when `$refs.column` is empty without ever
+     * retrying. Nudging as soon as rows are computed is therefore too early --
+     * that happens inside fetch(), before $fetchState.pending flips. Wait for
+     * loading to finish AND for the rows to be in the DOM.
+     *
+     * Re-running is safe: SortableTable tags each column with
+     * `__delayedLoading` and skips ones it has already started.
      */
-    filteredRows(rows) {
-      if (rows.length) {
-        this.forceUpdateLiveAndDelayed = new Date().getTime();
+    kickDelayedColumns() {
+      if (this.$fetchState.pending || !this.filteredRows.length) {
+        return;
       }
+
+      this.$nextTick(() => {
+        this.forceUpdateLiveAndDelayed = new Date().getTime();
+      });
     },
   },
 
