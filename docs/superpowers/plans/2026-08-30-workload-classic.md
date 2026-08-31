@@ -63,7 +63,7 @@ cd /Users/sirdopes/git/rancher-ext-workload-classic
 ls LICENSE README.md docs pkg/workload-classic/index.ts
 ```
 
-Expected: all five paths exist. If `LICENSE`, `README.md` or `docs` is missing, stop — the copy overwrote repo files.
+Expected: all four paths exist. If `LICENSE`, `README.md` or `docs` is missing, stop — the copy overwrote repo files.
 
 - [ ] **Step 3: Install dependencies**
 
