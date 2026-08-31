@@ -1,0 +1,123 @@
+<script>
+/**
+ * Aggregate workloads list.
+ *
+ * Derived from shell/list/workload.vue in rancher/dashboard at tag v2.9.0,
+ * before the aggregate view was gated off by PR #10795 and later removed by
+ * PR #18450. Original work Copyright (c) SUSE, Apache-2.0.
+ *
+ * Differences from the original:
+ *  - Uses the `workload-classic` type id rather than `workload`.
+ *  - Row and type selection live in ../utils/rows so they can be unit tested.
+ *  - The single-type branch is dropped; this component only ever renders the
+ *    aggregate view, because per-type lists are still handled by the shell.
+ */
+import ResourceTable from '@shell/components/ResourceTable';
+import { LIST_WORKLOAD_TYPES, SCHEMA, NODE, POD, WORKLOAD_TYPES } from '@shell/config/types';
+import ResourceFetch from '@shell/mixins/resource-fetch';
+import { WORKLOAD_CLASSIC } from '../config/workload-classic';
+import { filterTopLevelRows, allowedWorkloadTypes } from '../utils/rows';
+
+const ALL_TYPES = Object.values(LIST_WORKLOAD_TYPES);
+
+/**
+ * `workload-classic` has no Kubernetes schema, so fabricate one for
+ * ResourceTable. This mirrors what the original component did.
+ */
+const schema = {
+  id:         WORKLOAD_CLASSIC,
+  type:       SCHEMA,
+  attributes: {
+    kind:       'Workload',
+    namespaced: true,
+  },
+  metadata: { name: WORKLOAD_CLASSIC },
+};
+
+const $loadingResources = ($route, $store) => ({
+  loadResources: allowedWorkloadTypes(
+    ALL_TYPES,
+    (type) => !!$store.getters['cluster/schemaFor'](type)
+  ),
+  loadIndeterminate: true,
+});
+
+export default {
+  name:       'ListWorkloadClassic',
+  components: { ResourceTable },
+  mixins:     [ResourceFetch],
+
+  props: {
+    useQueryParamsForSimpleFiltering: {
+      type:    Boolean,
+      default: false,
+    },
+  },
+
+  async fetch() {
+    if (this.loadResources.length) {
+      this.$initializeFetchData(this.loadResources[0], this.loadResources);
+    }
+
+    // Nodes resolve NodePort endpoints to clickable external links. Without
+    // them the Endpoints column degrades to "[Any Node]:<port>".
+    if (this.$store.getters['cluster/schemaFor'](NODE)) {
+      this.$fetchType(NODE);
+    }
+
+    // Populate the health column. Both are already in loadResources, so the
+    // store de-duplicates these; they are requested explicitly to make the
+    // dependency obvious.
+    this.$fetchType(POD);
+    this.$fetchType(WORKLOAD_TYPES.JOB);
+
+    this.resources = await Promise.all(
+      this.loadResources.map((type) => this.$fetchType(type, this.loadResources))
+    );
+  },
+
+  data() {
+    // Set on load rather than in fetch, so the namespace filter knows whether
+    // it is required before the first request goes out.
+    const { loadResources, loadIndeterminate } = $loadingResources(this.$route, this.$store);
+
+    return {
+      resources: [],
+      loadResources,
+      loadIndeterminate,
+      schema,
+    };
+  },
+
+  computed: {
+    filteredRows() {
+      return filterTopLevelRows(this.resources);
+    },
+
+    headers() {
+      return this.$store.getters['type-map/headersFor'](this.schema, false);
+    },
+  },
+
+  // Drives the loading indicator
+  $loadingResources($route, $store) {
+    return $loadingResources($route, $store);
+  },
+
+  typeDisplay() {
+    return this.$store.getters['type-map/labelFor'](this.schema, 99);
+  },
+};
+</script>
+
+<template>
+  <ResourceTable
+    :loading="$fetchState.pending"
+    :schema="schema"
+    :headers="headers"
+    :rows="filteredRows"
+    :overflow-y="true"
+    :use-query-params-for-simple-filtering="useQueryParamsForSimpleFiltering"
+    :force-update-live-and-delayed="forceUpdateLiveAndDelayed"
+  />
+</template>
