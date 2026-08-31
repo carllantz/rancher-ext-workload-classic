@@ -30,18 +30,36 @@ The repository ships a workflow that publishes a Helm chart repository, but it
 only runs on a GitHub release, so one has to be cut first.
 
 1. Set the version you want in `pkg/workload-classic/package.json`.
-2. Create a GitHub release whose tag is exactly `workload-classic-<version>`,
+2. **Create the `gh-pages` branch first if it does not exist.** The publish
+   script does not create it and fails with `'gh-pages' branch not found, this
+   branch must exist before running this script`. An empty orphan branch is
+   enough:
+
+   ```sh
+   EMPTY_TREE=$(git hash-object -t tree /dev/null)
+   COMMIT=$(git commit-tree "$EMPTY_TREE" -m "Initialize gh-pages")
+   git update-ref refs/heads/gh-pages "$COMMIT"
+   git push origin gh-pages
+   ```
+
+   This touches neither your checkout nor `HEAD`.
+3. Create a GitHub release whose tag is exactly `workload-classic-<version>`,
    for example `workload-classic-0.1.0`. The tag has to match
    `<pkg folder name>-<version>`; on any other tag the workflow cancels itself.
-3. The **Build and Release Extension Charts** workflow publishes the chart
-   repository to the `gh-pages` branch. Enable GitHub Pages for that branch
-   (Settings → Pages → Source: `gh-pages`).
-4. In Rancher, go to **Extensions → ⋮ → Manage Repositories → Create**, choose
+4. The **Build and Release Extension Charts** workflow publishes the chart
+   repository to `gh-pages`. GitHub usually enables Pages automatically when
+   that branch first appears; if not, set Settings → Pages → Source to
+   `gh-pages`.
+5. In Rancher, go to **Extensions → ⋮ → Manage Repositories → Create**, choose
    **http(s)**, and enter the Pages URL:
    `https://<owner>.github.io/rancher-ext-workload-classic`
-5. Back on **Extensions → Available**, install **Workload Classic**.
-6. Reload the page. **All Workloads** appears at the bottom of the Workloads
+6. Back on **Extensions → Available**, install **Workload Classic**.
+7. Reload the page. **All Workloads** appears at the bottom of the Workloads
    group in Cluster Explorer.
+
+For this repository the chart repository is already published at
+https://carllantz.github.io/rancher-ext-workload-classic — add that URL at
+step 5 and skip straight to installing.
 
 ### Option B — developer load (no release needed)
 
