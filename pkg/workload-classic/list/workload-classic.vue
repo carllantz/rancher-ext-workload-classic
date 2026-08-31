@@ -24,7 +24,7 @@ const ALL_TYPES = Object.values(LIST_WORKLOAD_TYPES);
  * `workload-classic` has no Kubernetes schema, so fabricate one for
  * ResourceTable. This mirrors what the original component did.
  */
-const schema = {
+const workloadClassicSchema = {
   id:         WORKLOAD_CLASSIC,
   type:       SCHEMA,
   attributes: {
@@ -85,7 +85,7 @@ export default {
       resources: [],
       loadResources,
       loadIndeterminate,
-      schema,
+      schema: workloadClassicSchema,
     };
   },
 
@@ -104,8 +104,14 @@ export default {
     return $loadingResources($route, $store);
   },
 
+  // ResourceList/index.vue applies this option as `component.typeDisplay.apply(this)`
+  // where `this` is ResourceList's OWN instance, not this component's. ResourceList's
+  // own `schema` comes from `cluster/schemaFor(resource)`, which is undefined for
+  // `workload-classic` because the type is deliberately schema-less — so `this.schema`
+  // here is undefined and must fall back to the fabricated schema constant, or the
+  // page heading and tab title render as "?". Do not remove the fallback.
   typeDisplay() {
-    return this.$store.getters['type-map/labelFor'](this.schema, 99);
+    return this.$store.getters['type-map/labelFor'](this.schema || workloadClassicSchema, 99);
   },
 };
 </script>
