@@ -1,6 +1,5 @@
 import { importTypes } from '@rancher/auto-import';
 import { IPlugin } from '@shell/core/types';
-import { init } from './config/workload-classic';
 
 // Init the package
 export default function(plugin: IPlugin): void {
