@@ -53,7 +53,7 @@ the index.
 1. Go back to **☰ → Extensions** and select the **Available** tab
 2. Find the **workload-classic** card
 3. Open its **⋮** menu and choose **Install**
-4. Confirm the version — **use 0.1.3 or later** — and click **Install**
+4. Confirm the version and click **Install**
 
 ### 3. Reload
 
@@ -64,16 +64,6 @@ bottom of the **Workloads** group in Cluster Explorer, and the page itself is at
 To upgrade later, use **Upgrade** in the same **⋮** menu. If a newly published
 version does not appear, select the repository under **Manage Repositories** and
 click **Refresh** — Rancher only re-reads the index periodically.
-
-### Version note
-
-**Install 0.1.3 or later.** 0.1.0, 0.1.1 and 0.1.2 are published but their
-Restarts and Health columns never load: an extension bundles its own copy of the
-shell's `SortableTable` and of the formatter map that populates its cell
-components, and only the host dashboard fills that map. With no formatter
-resolved the table never attaches the refs those two `delayLoading` columns are
-started through, so both spin indefinitely. 0.1.3 populates the map from the
-extension itself. The rest of the page is unaffected on every version.
 
 ## Scale
 
