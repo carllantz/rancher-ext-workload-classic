@@ -1,4 +1,4 @@
-import { IPlugin } from '@shell/core/types';
+import { IPlugin, ConfigureVirtualTypeOptions } from '@shell/core/types';
 import {
   STATE,
   NAME as NAME_COL,
@@ -27,15 +27,13 @@ const RESOURCE_ROUTE = 'c-cluster-product-resource';
 
 export function init($plugin: IPlugin, store: any): void {
   const {
-    virtualType, basicType, weightType, configureType, headers,
+    virtualType, basicType, weightType, headers,
   } = $plugin.DSL(store, EXPLORER);
 
   const route = {
     name:   RESOURCE_ROUTE,
     params: { resource: WORKLOAD_CLASSIC },
   };
-
-  configureType(WORKLOAD_CLASSIC, { location: route });
 
   headers(WORKLOAD_CLASSIC, [
     STATE,
@@ -49,13 +47,18 @@ export function init($plugin: IPlugin, store: any): void {
     WORKLOAD_HEALTH_SCALE,
   ]);
 
-  virtualType({
+  // `icon` is supported at runtime — the shell's own explorer.js sets
+  // `icon: 'folder'` on this same nav group — but it is missing from
+  // ConfigureVirtualTypeOptions, so widen the type just for that one property.
+  const navEntry: ConfigureVirtualTypeOptions & { icon: string } = {
     labelKey:   'workloadClassic.nav.label',
     name:       WORKLOAD_CLASSIC,
     namespaced: true,
     icon:       'folder',
     route,
-  });
+  };
+
+  virtualType(navEntry);
 
   basicType([WORKLOAD_CLASSIC], WORKLOAD_GROUP);
 
