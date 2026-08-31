@@ -13,6 +13,7 @@
     "@types/lodash": "4.17.5"
   },
   "scripts": {
+    "test": "jest",
     "dev": "NODE_ENV=dev ./node_modules/.bin/vue-cli-service serve",
     "build": "./node_modules/.bin/vue-cli-service build",
     "clean": "./node_modules/@rancher/shell/scripts/clean",
@@ -20,5 +21,11 @@
     "serve-pkgs": "./node_modules/@rancher/shell/scripts/serve-pkgs",
     "publish-pkgs": "./node_modules/@rancher/shell/scripts/extension/publish",
     "parse-tag-name": "./node_modules/@rancher/shell/scripts/extension/parse-tag-name"
+  },
+  "devDependencies": {
+    "@types/jest": "^29",
+    "jest": "^29",
+    "ts-jest": "^29",
+    "typescript": "^5.9.3"
   }
 }
