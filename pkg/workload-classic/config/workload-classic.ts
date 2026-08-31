@@ -27,7 +27,7 @@ const RESOURCE_ROUTE = 'c-cluster-product-resource';
 
 export function init($plugin: IPlugin, store: any): void {
   const {
-    virtualType, basicType, weightType, headers,
+    virtualType, basicType, headers,
   } = $plugin.DSL(store, EXPLORER);
 
   const route = {
@@ -56,12 +56,18 @@ export function init($plugin: IPlugin, store: any): void {
     namespaced: true,
     icon:       'folder',
     route,
+    // Sorts below every shell entry in the group, including Pods at -1.
+    //
+    // This has to live on the virtual type itself, NOT in weightType().
+    // type-map.js:1154 resolves a virtual type's weight as
+    // `type.weight || typeWeightFor(item.label, isBasic)` — the fallback is
+    // keyed on the resolved LABEL ("All Workloads"), never the type id, so
+    // weightType('workload-classic', ...) never matched and the entry fell
+    // back to weight 0 and sorted alphabetically to the TOP of the group.
+    weight: -100,
   };
 
   virtualType(navEntry);
 
   basicType([WORKLOAD_CLASSIC], WORKLOAD_GROUP);
-
-  // Negative weight sorts it below the shell's own entries in the group.
-  weightType(WORKLOAD_CLASSIC, -100, true);
 }
