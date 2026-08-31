@@ -1,0 +1,19 @@
+{
+  "name": "workload-classic",
+  "description": "workload-classic plugin",
+  "version": "0.1.2",
+  "private": false,
+  "rancher": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "5.0.9",
+    "@vue/cli-service": "5.0.8",
+    "@vue/cli-plugin-typescript": "5.0.9"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "workload-classic-0.1.2.umd.min.js"
+}
