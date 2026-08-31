@@ -99,6 +99,32 @@ export default {
     },
   },
 
+  watch: {
+    /**
+     * Kick the delayed columns (Restarts, Health) once rows arrive.
+     *
+     * SortableTable only starts a `delayLoading` column when it sees the
+     * `forceUpdateLiveAndDelayed` prop CHANGE (watcherUpdateLiveAndDelayed ->
+     * updateDelayedColumns), or when the user scrolls the table.
+     *
+     * The shell's own mixins assign that timestamp from exactly two watchers:
+     * a namespace-filter change (resource-fetch-namespaced.js) and a pagination
+     * change (resource-fetch-api-pagination.js). Native list pages get it for
+     * free because server-side pagination settles during load. This page
+     * deliberately does not paginate, and on a first load the namespace filter
+     * does not change either -- so neither watcher fires, the value stays at its
+     * initial 0, and both delayed columns spin forever.
+     *
+     * Re-running is safe: SortableTable tags each column with `__delayedLoading`
+     * and skips the ones it has already started.
+     */
+    filteredRows(rows) {
+      if (rows.length) {
+        this.forceUpdateLiveAndDelayed = new Date().getTime();
+      }
+    },
+  },
+
   // Drives the loading indicator
   $loadingResources($route, $store) {
     return $loadingResources($route, $store);
