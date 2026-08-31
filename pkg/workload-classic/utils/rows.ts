@@ -1,9 +1,14 @@
 /**
  * A row as returned by the cluster store. Only the field this module needs is
- * declared; models carry many more.
+ * declared; models carry many more. The index signature is there because
+ * rows are Steve model instances carrying many more fields than this module
+ * declares — without it, TypeScript treats `WorkloadRow` as a "weak type"
+ * (all members optional) and rejects any object that shares zero property
+ * names with it, which real model instances would otherwise trip.
  */
 export interface WorkloadRow {
   ownedByWorkload?: boolean;
+  [key: string]: unknown;
 }
 
 /**

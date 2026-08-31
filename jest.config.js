@@ -5,8 +5,9 @@ module.exports = {
   // ts-jest resolves the tsconfig nearest to <rootDir>, which is the repo
   // root tsconfig.json — it does not include "@types/jest" in its "types"
   // array (only the nested pkg/workload-classic/tsconfig.json does), so
-  // Jest globals fail to type-check. isolatedModules switches ts-jest to
-  // per-file transpilation (no cross-file/global type checking), which
-  // sidesteps that without editing any tsconfig shared with other tasks.
-  transform: { '^.+\\.ts$': ['ts-jest', { isolatedModules: true }] },
+  // Jest globals fail to type-check under the default resolution. Pointing
+  // ts-jest at the package tsconfig (which already includes @types/jest)
+  // fixes that while keeping full type checking intact, without editing the
+  // repo-root tsconfig shared with other tasks.
+  transform: { '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/pkg/workload-classic/tsconfig.json' }] },
 };
