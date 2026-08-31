@@ -11,6 +11,25 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 0.1.3
+    created: "2026-08-31T20:17:11.916656047Z"
+    description: workload-classic plugin
+    digest: a25f3899bc72b145fc4dc56874e14ccab47a88d4f758c39d672477a0e2251bf7
+    name: workload-classic
+    type: application
+    urls:
+    - assets/workload-classic/workload-classic-0.1.3.tgz
+    version: 0.1.3
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.14.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 0.1.2
     created: "2026-08-31T19:41:06.706954988Z"
     description: workload-classic plugin
@@ -58,4 +77,4 @@ entries:
     urls:
     - assets/workload-classic/workload-classic-0.1.0.tgz
     version: 0.1.0
-generated: "2026-08-31T19:41:06.706109314Z"
+generated: "2026-08-31T20:17:11.916129884Z"
