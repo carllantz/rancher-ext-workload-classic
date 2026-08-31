@@ -1,14 +1,15 @@
 import { importTypes } from '@rancher/auto-import';
 import { IPlugin } from '@shell/core/types';
+import { init } from './config/workload-classic';
 
 // Init the package
 export default function(plugin: IPlugin): void {
-  // Auto-import model, detail, edit from the folders
+  // Auto-imports list/ and l10n/ by folder convention
   importTypes(plugin);
 
   // Provide plugin metadata from package.json
   plugin.metadata = require('./package.json');
 
-  // Load a product
-  // plugin.addProduct(require('./product'));
+  // The module exports `init(plugin, store)`; the shell calls it during load.
+  plugin.addProduct(require('./config/workload-classic'));
 }
