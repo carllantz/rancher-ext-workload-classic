@@ -44,7 +44,7 @@ only runs on a GitHub release, so one has to be cut first.
 
    This touches neither your checkout nor `HEAD`.
 3. Create a GitHub release whose tag is exactly `workload-classic-<version>`,
-   for example `workload-classic-0.1.0`. The tag has to match
+   for example `workload-classic-0.1.3`. The tag has to match
    `<pkg folder name>-<version>`; on any other tag the workflow cancels itself.
 4. The **Build and Release Extension Charts** workflow publishes the chart
    repository to `gh-pages`. GitHub usually enables Pages automatically when
@@ -61,6 +61,14 @@ For this repository the chart repository is already published at
 https://carllantz.github.io/rancher-ext-workload-classic — add that URL at
 step 5 and skip straight to installing.
 
+**Install 0.1.3 or later.** 0.1.0, 0.1.1 and 0.1.2 are published but their
+Restarts and Health columns never load: an extension bundles its own copy of
+the shell's `SortableTable` and of the formatter map that populates its cell
+components, and only the host dashboard fills that map. With no formatter
+resolved the table never attaches the refs those two `delayLoading` columns
+are started through, so both spin indefinitely. 0.1.3 populates the map from
+the extension itself. The rest of the page is unaffected on every version.
+
 ### Option B — developer load (no release needed)
 
 Useful for trying it out, and the quickest path on an air-gapped or private
@@ -76,7 +84,7 @@ yarn serve-pkgs
 **Extensions → ⋮ → Developer load** and enter:
 
 ```
-http://127.0.0.1:4500/workload-classic-0.1.0/workload-classic-0.1.0.umd.min.js
+http://127.0.0.1:4500/workload-classic-0.1.3/workload-classic-0.1.3.umd.min.js
 ```
 
 The browser fetches that URL, not the Rancher server, so `127.0.0.1` works as
@@ -119,6 +127,16 @@ Type checking is not part of the dev server; run it explicitly:
 ```sh
 ./node_modules/.bin/tsc -p pkg/workload-classic/tsconfig.json --noEmit
 ```
+
+**`yarn dev` does not behave like an installed extension.** In development the
+package is compiled into the host application and shares its module instances;
+when installed it is a separate UMD bundle with its own copies of whatever it
+imports from `@shell`. Anything depending on shell state that is populated at
+host boot — the `SortableTable` formatter map is one — works in `yarn dev` and
+fails once installed. Verify changes against a real install, or reproduce the
+split locally: set `excludes: ['workload-classic']` in the root `vue.config.js`
+so the dev server does not bundle the package, then load the built UMD through
+**Extensions → ⋮ → Developer load**.
 
 ## Licence
 
