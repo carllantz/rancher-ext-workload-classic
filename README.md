@@ -1,3 +1,7 @@
+> [!CAUTION]
+> This is just a POC and should be treated as such.
+
+
 # Workload Classic
 
 A Rancher UI extension that restores the aggregate **Workloads** list to Cluster
