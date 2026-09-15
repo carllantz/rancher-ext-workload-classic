@@ -69,6 +69,58 @@ To upgrade later, use **Upgrade** in the same **⋮** menu. If a newly published
 version does not appear, select the repository under **Manage Repositories** and
 click **Refresh** — Rancher only re-reads the index periodically.
 
+## Installing with kubectl
+
+For GitOps or headless installs, apply the `UIPlugin` resource directly instead
+of using the Extensions UI. This is the same resource the Helm chart creates.
+
+**Prerequisite.** Extension support must be enabled once per Rancher (☰ →
+Extensions → **Enable**). That creates the `cattle-ui-plugin-system` namespace
+and the `ui-plugin-operator` this resource depends on.
+
+```sh
+kubectl apply -f deploy/workload-classic-uiplugin.yaml
+```
+
+The manifest is [`deploy/workload-classic-uiplugin.yaml`](deploy/workload-classic-uiplugin.yaml):
+
+```yaml
+apiVersion: catalog.cattle.io/v1
+kind: UIPlugin
+metadata:
+  name: workload-classic
+  namespace: cattle-ui-plugin-system
+spec:
+  plugin:
+    name: workload-classic
+    version: 0.1.3
+    # Note the trailing /plugin — the bundle lives below the version dir.
+    endpoint: https://raw.githubusercontent.com/carllantz/rancher-ext-workload-classic/gh-pages/extensions/workload-classic/0.1.3/plugin
+    compressedEndpoint: https://raw.githubusercontent.com/carllantz/rancher-ext-workload-classic/gh-pages/extensions/workload-classic/0.1.3.tgz
+    noCache: false
+    noAuth: true
+    # REQUIRED. Without these annotations the dashboard rejects the plugin with
+    # plugins.error.apiAnnotationMissing and never loads it — no nav entry, and a
+    # direct URL hits the fail-whale. The build reduces the source package.json's
+    # rancher.annotations to `"rancher": true`, so the compatibility versions have
+    # to be supplied here on the resource.
+    metadata:
+      catalog.cattle.io/rancher-version: ">= 2.14.0"
+      catalog.cattle.io/ui-extensions-version: ">= 3.0.0 < 4.0.0"
+```
+
+Wait for the operator to cache the bundle, then reload the browser:
+
+```sh
+kubectl get uiplugin workload-classic -n cattle-ui-plugin-system \
+  -o jsonpath='{.status.cacheState}'   # -> cached
+```
+
+This resource is unmanaged — unlike the Helm install there is no **Upgrade**
+button. To move to a new version, bump `version` and both endpoint URLs together
+and re-apply. To remove it, `kubectl delete uiplugin workload-classic -n
+cattle-ui-plugin-system`.
+
 ## Scale
 
 This page fetches every workload type, including all pods, and filters and sorts
